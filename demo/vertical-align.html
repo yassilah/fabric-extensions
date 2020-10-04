@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
+    <script src="./../dist/fabric-extensions.umd.js"></script>
+  </head>
+  <body>
+    <canvas width="500" height="500"></canvas>
+    <script>
+      const instance = new fabric.Canvas(document.querySelector('canvas'), {
+        enableRetinaScaling: true,
+      })
+      const topLeft = new fabric.Textbox('Test top left', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'left',
+        verticalAlign: 'top',
+      })
+      const topCenter = new fabric.Textbox('Test top center', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'center',
+        verticalAlign: 'top',
+      })
+      const topRight = new fabric.Textbox('Test top right', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'right',
+        verticalAlign: 'top',
+      })
+      const middleLeft = new fabric.Textbox('Test middle left', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'left',
+        verticalAlign: 'middle',
+      })
+      const middleCenter = new fabric.Textbox('Test middle center', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'center',
+        verticalAlign: 'middle',
+      })
+      const middleRight = new fabric.Textbox('Test middle right', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'right',
+        verticalAlign: 'middle',
+      })
+      const bottomLeft = new fabric.Textbox('Test bottom left', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'left',
+        verticalAlign: 'bottom',
+      })
+      const bottomCenter = new fabric.Textbox('Test bottom center', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'center',
+        verticalAlign: 'bottom',
+      })
+      const bottomRight = new fabric.Textbox('Test bottom right', {
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 500,
+        fontSize: 10,
+        textAlign: 'right',
+        verticalAlign: 'bottom',
+      })
+      instance.add(
+        topLeft,
+        topCenter,
+        topRight,
+        middleLeft,
+        middleCenter,
+        middleRight,
+        bottomLeft,
+        bottomCenter,
+        bottomRight
+      )
+    </script>
+  </body>
+</html>
