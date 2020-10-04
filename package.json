@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "dist/fabric-extensions.umd.js",
   "module": "dist/fabric-extensions.es5.js",
-  "typings": "dist/types/fabric-extensions.d.ts",
+  "typings": "dist/types/index.d.ts",
   "files": [
     "dist"
   ],

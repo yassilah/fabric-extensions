@@ -12,6 +12,9 @@ declare module 'fabric' {
       _getSelectionStartOffsetY(): number
       missingNewlineOffset(index: number): number
     }
+    interface ITextOptions {
+      verticalAlign?: 'top' | 'middle' | 'bottom'
+    }
   }
 }
 
