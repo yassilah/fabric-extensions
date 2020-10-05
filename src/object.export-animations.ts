@@ -6,11 +6,11 @@ import { extendMethod } from './utils'
 declare module 'fabric' {
   namespace fabric {
     let animations: {
-      [key: string]: <T extends Object>(
+      [key: string]: <T extends Object = Object>(
         this: T,
         object: T,
         animation: CustomAnimation<T>
-      ) => CustomAnimation<T>
+      ) => CustomAnimation<any>
     }
     interface Object {
       animations: CustomAnimation<this>[]
@@ -51,7 +51,7 @@ declare module 'fabric' {
     interface IAnimationOptions {
       abort?(): boolean
     }
-    interface AnimationCtx<T extends Object> {
+    interface AnimationCtx<T extends Object = Object> {
       (): void
       iteration: number
       abort: boolean
