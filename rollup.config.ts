@@ -20,20 +20,20 @@ export default {
       sourcemap: true,
       globals: {
         fabric: 'fabric',
-      }
+      },
     },
     {
       file: pkg.module,
       format: 'es',
       sourcemap: true,
-      plugins: [terser()]
+      plugins: [terser()],
     },
     {
       file: pkg.module.replace(/\.js$/, '.min.js'),
       format: 'es',
       sourcemap: true,
-      plugins: [terser()]
-    }
+      plugins: [terser()],
+    },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: ['fabric'],
@@ -46,7 +46,7 @@ export default {
     // Compile TypeScript files
     typescript({ useTsconfigDeclarationDir: true }),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
-    commonjs({ include: ['node_modules']}),
+    commonjs({ include: /node_modules/ }),
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage

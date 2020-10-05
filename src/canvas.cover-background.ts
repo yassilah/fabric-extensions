@@ -13,7 +13,7 @@ export function install(instance: typeof fabric) {
     /**
      * @private
      */
-    toObject: extendMethod(instance.StaticCanvas, 'toObject', function (object: any) {
+    toJSON: extendMethod(instance.StaticCanvas, 'toJSON', function (object: any) {
       if (object.backgroundImage && object.backgroundImage.getSrc) {
         object.backgroundImage = object.backgroundImage.getSrc()
       } else {
