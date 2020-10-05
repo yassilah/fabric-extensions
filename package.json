@@ -100,7 +100,6 @@
     "jest-config": "^26.4.2",
     "lint-staged": "^10.4.0",
     "lodash.camelcase": "^4.3.0",
-    "patch-package": "^6.2.2",
     "prettier": "^2.1.2",
     "prompt": "^1.0.0",
     "replace-in-file": "^6.1.0",
@@ -125,6 +124,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "patch-package": "^6.2.2",
     "fabric": "^4.2.0",
     "lodash.pick": "^4.4.0"
   },
