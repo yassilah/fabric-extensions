@@ -1,0 +1,83 @@
+diff --git a/node_modules/fabric/lib/aligning_guidelines.js b/node_modules/fabric/lib/aligning_guidelines.js
+index 68c6b3f..e96c121 100644
+--- a/node_modules/fabric/lib/aligning_guidelines.js
++++ b/node_modules/fabric/lib/aligning_guidelines.js
+@@ -3,7 +3,7 @@
+  * [Bug] Scaled objects sometimes can not be aligned by edges
+  *
+  */
+-function initAligningGuidelines(canvas) {
++module.exports = function initAligningGuidelines(canvas) {
+ 
+   var ctx = canvas.getSelectionContext(),
+       aligningLineOffset = 5,
+diff --git a/node_modules/fabric/lib/centering_guidelines.js b/node_modules/fabric/lib/centering_guidelines.js
+index 5c6f6c8..0dc2a1a 100644
+--- a/node_modules/fabric/lib/centering_guidelines.js
++++ b/node_modules/fabric/lib/centering_guidelines.js
+@@ -4,27 +4,40 @@
+  * Need to fix it by replacing callbacks with pub/sub kind of subscription model.
+  * (or maybe use existing fabric.util.fire/observe (if it won't be too slow))
+  */
+-function initCenteringGuidelines(canvas) {
+-
+-  var canvasWidth = canvas.getWidth(),
+-      canvasHeight = canvas.getHeight(),
+-      canvasWidthCenter = canvasWidth / 2,
+-      canvasHeightCenter = canvasHeight / 2,
+-      canvasWidthCenterMap = { },
+-      canvasHeightCenterMap = { },
++module.exports = function initCenteringGuidelines(canvas) {
++
++    var canvasWidth,
++      canvasHeight,
++      canvasWidthCenter,
++      canvasHeightCenter,
++      canvasWidthCenterMap,
++      canvasHeightCenterMap,
+       centerLineMargin = 4,
+       centerLineColor = 'rgba(255,0,241,0.5)',
+       centerLineWidth = 1,
+       ctx = canvas.getSelectionContext(),
+-      viewportTransform;
++      viewportTransform
+   
+-  for (var i = canvasWidthCenter - centerLineMargin, len = canvasWidthCenter + centerLineMargin; i <= len; i++) {
+-    canvasWidthCenterMap[Math.round(i)] = true;
+-  }
+-  for (var i = canvasHeightCenter - centerLineMargin, len = canvasHeightCenter + centerLineMargin; i <= len; i++) {
+-    canvasHeightCenterMap[Math.round(i)] = true;
++  function updateDimensions() {
++      canvasWidth = canvas.getWidth() / canvas.getZoom()
++      canvasHeight = canvas.getHeight() / canvas.getZoom()
++      canvasWidthCenter = canvasWidth / 2
++      canvasHeightCenter = canvasHeight / 2
++      canvasWidthCenterMap = {}
++      canvasHeightCenterMap = {}
++      viewportTransform = canvas.viewportTransform
++  
++    for (var i = canvasWidthCenter - centerLineMargin, len = canvasWidthCenter + centerLineMargin; i <= len; i++) {
++      canvasWidthCenterMap[Math.round(i)] = true
++    }
++    for (var i = canvasHeightCenter - centerLineMargin, len = canvasHeightCenter + centerLineMargin; i <= len; i++) {
++      canvasHeightCenterMap[Math.round(i)] = true
++    }
+   }
+ 
++
++    
++
+   function showVerticalCenterLine() {
+     showCenterLine(canvasWidthCenter + 0.5, 0, canvasWidthCenter + 0.5, canvasHeight);
+   }
+@@ -85,4 +98,10 @@ function initCenteringGuidelines(canvas) {
+     isInVerticalCenter = isInHorizontalCenter = null;
+     canvas.renderAll();
+   });
++
++  canvas.on('after:dimensions', function () {
++    updateDimensions()
++  })
++
++  updateDimensions()
+ }

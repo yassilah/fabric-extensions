@@ -12,6 +12,7 @@ import { install as canvasShortcutsRotate } from './canvas.shortcuts.rotate'
 import { install as canvasShortcutsGroup } from './canvas.shortcuts.group'
 import { install as canvasShortcutsCopy } from './canvas.shortcuts.copy'
 import { install as canvasDrop } from './canvas.drop'
+import { install as canvasGuidelines } from './canvas.guidelines'
 
 import { install as canvasShortcuts } from './canvas.shortcuts'
 import { install as canvasExternalElements } from './canvas.external-elements'
@@ -32,6 +33,7 @@ export function install(instance: typeof fabric) {
   canvasExternalElements(instance)
   canvasShortcutsCopy(instance)
   canvasDrop(instance)
+  canvasGuidelines(instance)
 }
 
 if (window.fabric) {
@@ -54,4 +56,5 @@ export {
   canvasExternalElements,
   canvasShortcutsCopy,
   canvasDrop,
+  canvasGuidelines,
 }

@@ -4,6 +4,7 @@ import sourceMaps from 'rollup-plugin-sourcemaps'
 import camelCase from 'lodash.camelcase'
 import typescript from 'rollup-plugin-typescript2'
 import json from 'rollup-plugin-json'
+import internal from 'rollup-plugin-internal'
 import { terser } from 'rollup-plugin-terser'
 
 const pkg = require('./package.json')
@@ -54,5 +55,6 @@ export default {
 
     // Resolve source maps to the original source
     sourceMaps(),
+    internal(['fabric/lib/centering_guidelines', 'fabric/lib/aligning_guidelines']),
   ],
 }
