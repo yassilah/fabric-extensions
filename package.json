@@ -1,6 +1,6 @@
 {
-  "name": "fabric-extensions",
-  "version": "0.0.0",
+  "name": "@yassidev/fabric-extensions",
+  "version": "1.0.0",
   "description": "Extensions to fabric.js",
   "keywords": [],
   "main": "dist/fabric-extensions.umd.js",
@@ -9,11 +9,11 @@
   "files": [
     "dist"
   ],
-  "author": "yassipad <yasser.lahbibi@apenhet.com>",
-  "repository": {
-    "type": "git",
-    "url": ""
+  "publishConfig": {
+    "access": "public"
   },
+  "author": "yassipad <yasser.lahbibi@apenhet.com>",
+  "repository": "https://github.com/yassipad/fabric-extensions",
   "license": "MIT",
   "engines": {
     "node": ">=6.0.0"
@@ -124,5 +124,6 @@
   "dependencies": {
     "fabric": "^4.2.0",
     "lodash.pick": "^4.4.0"
-  }
+  },
+  "private": false
 }
