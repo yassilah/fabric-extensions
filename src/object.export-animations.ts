@@ -31,9 +31,6 @@ declare module 'fabric' {
       __storeOriginal(animation: CustomAnimation<this>): this
       __restoreOriginal(object: Object): this
     }
-    interface IObjectOptions {
-      animations?: CustomAnimation<any>[]
-    }
     interface CustomAnimation<T extends Object> {
       name?: string
       trigger?: 'mousedown' | 'mouseup' | 'mouseover' | 'dblclick' | 'tripleclick' | string

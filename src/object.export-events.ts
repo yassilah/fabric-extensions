@@ -18,9 +18,6 @@ declare module 'fabric' {
       ): boolean
       __eventsProxyDeleteHandler(callbacks: any[], events: CustomEvent[], index: number): boolean
     }
-    interface IObjectOptions {
-      events?: CustomEvent[]
-    }
     interface CustomEvent {
       name?: string
       trigger: 'mousedown' | 'mouseup' | 'mouseover' | 'dblclick' | 'tripleclick' | string

@@ -8,7 +8,7 @@ import { terser } from 'rollup-plugin-terser'
 
 const pkg = require('./package.json')
 
-const libraryName = pkg.name.split('/')[1]
+const libraryName = pkg.name
 
 export default {
   input: `src/index.ts`,
