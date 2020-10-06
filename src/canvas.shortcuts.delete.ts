@@ -1,29 +1,15 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts } from '.'
+import canvasShortcuts from './canvas.shortcuts'
+import { extension } from './utils'
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
+export default extension('canvas.shortcuts.delete', (fabric) => {
+  canvasShortcuts(fabric)
 
-  instance.util.object.extend(instance.Canvas.prototype, {
-    /**
-     * List of shortcuts.
-     */
-    shortcuts: {
-      ...instance.Canvas.prototype.shortcuts,
-      delete(this: fabric.Canvas) {
-        const selected = this.getActiveObjects()
-        this.remove(...selected)
-        this.discardActiveObject()
-      },
-      backspace(this: fabric.Canvas) {
-        const selected = this.getActiveObjects()
-        this.remove(...selected)
-        this.discardActiveObject()
-      },
-    },
-  })
-}
+  function remove(canvas: fabric.Canvas) {
+    const selected = canvas.getActiveObjects()
+    canvas.remove(...selected)
+    canvas.discardActiveObject()
+  }
 
-if (window.fabric) {
-  install(window.fabric)
-}
+  fabric.util.registerShortcut('delete', remove)
+  fabric.util.registerShortcut('backspace', remove)
+})

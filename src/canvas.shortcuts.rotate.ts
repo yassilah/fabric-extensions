@@ -1,51 +1,24 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts } from '.'
+import canvasShortcuts from './canvas.shortcuts'
+import { extension } from './utils'
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
+export default extension('canvas.shortcuts.rotate', (fabric) => {
+  canvasShortcuts(fabric)
 
-  instance.util.object.extend(instance.Canvas.prototype, {
-    /**
-     * List of shortcuts.
-     */
-    shortcuts: {
-      ...instance.Canvas.prototype.shortcuts,
-      ['alt+arrowright'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('angle', object.angle! + 1)
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['alt+arrowleft'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('angle', object.angle! - 1)
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['alt+arrowright+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('angle', object.angle! + 10)
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['alt+arrowleft+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('angle', object.angle! - 10)
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-    },
-  })
-}
+  function rotate(direction: 'left' | 'right', value: number) {
+    const multiplier = direction === 'left' ? -1 : 1
+    return function (canvas: fabric.Canvas) {
+      const object = canvas.getActiveObject()
+      if (object) {
+        const newValue = (object.angle || 0) + value * multiplier
+        object.set('angle', newValue).setCoords()
+        canvas.fire('object:modified', { target: object })
+        canvas.requestRenderAll()
+      }
+    }
+  }
 
-if (window.fabric) {
-  install(window.fabric)
-}
+  fabric.util.registerShortcut('shift+ctrl+arrowleft', rotate('left', 1))
+  fabric.util.registerShortcut('alt+ctrl+shift+arrowleft', rotate('left', 10))
+  fabric.util.registerShortcut('shift+ctrl+arrowright', rotate('right', 1))
+  fabric.util.registerShortcut('alt+ctrl+shift+arrowright', rotate('right', 10))
+})

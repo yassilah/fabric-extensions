@@ -1,51 +1,22 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts } from '.'
+import canvasShortcuts from './canvas.shortcuts'
+import { extension } from './utils'
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
+export default extension('canvas.shortcuts.order', (fabric) => {
+  canvasShortcuts(fabric)
 
-  instance.util.object.extend(instance.Canvas.prototype, {
-    /**
-     * List of shortcuts.
-     */
-    shortcuts: {
-      ...instance.Canvas.prototype.shortcuts,
-      ['ctrl+arrowup+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.bringToFront()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['ctrl+arrowdown+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.sendBackwards()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['arrowup+ctrl'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.bringForward()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['arrowdown+ctrl'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.sendToBack()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-    },
-  })
-}
+  function order(method: 'bringForward' | 'bringToFront' | 'sendToBack' | 'sendBackwards') {
+    return function (canvas: fabric.Canvas) {
+      const object = canvas.getActiveObject()
+      if (object) {
+        object[method]()
+        canvas.fire('object:modified', { target: object })
+        canvas.requestRenderAll()
+      }
+    }
+  }
 
-if (window.fabric) {
-  install(window.fabric)
-}
+  fabric.util.registerShortcut('arrowdown+ctrl', order('sendBackwards'))
+  fabric.util.registerShortcut('arrowdown+shift+ctrl', order('sendToBack'))
+  fabric.util.registerShortcut('arrowup+ctrl', order('bringForward'))
+  fabric.util.registerShortcut('arrowup+shift+ctrl', order('bringToFront'))
+})

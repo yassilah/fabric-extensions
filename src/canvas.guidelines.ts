@@ -1,25 +1,20 @@
-import { fabric } from 'fabric'
-import { extendMethod } from './utils'
+import { extendMethod, extension } from './utils'
 // @ts-ignore
 import initCenteringGuidelines from 'fabric/lib/centering_guidelines'
 // @ts-ignore
 import initAligningGuidelines from 'fabric/lib/aligning_guidelines'
 
-export function install(instance: typeof fabric) {
-  instance.util.object.extend(instance.Canvas.prototype, {
-    initialize: extendMethod(instance.Canvas, 'initialize', function () {
+export default extension('canvas.guidelines', (fabric) => {
+  fabric.util.object.extend(fabric.Canvas.prototype, {
+    initialize: extendMethod(fabric.Canvas, 'initialize', function () {
       initAligningGuidelines(this)
       initCenteringGuidelines(this)
     }),
-    setDimensions: extendMethod(instance.Canvas, 'setDimensions', function () {
+    setDimensions: extendMethod(fabric.Canvas, 'setDimensions', function () {
       this.fire('after:dimensions', {})
     }),
-    setZoom: extendMethod(instance.Canvas, 'setZoom', function () {
+    setZoom: extendMethod(fabric.Canvas, 'setZoom', function () {
       this.fire('after:dimensions', {})
     }),
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

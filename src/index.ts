@@ -1,21 +1,21 @@
 import { fabric } from 'fabric'
-import { install as textVerticalAlign } from './text.vertical-align'
-import { install as imageImport } from './image.import'
-import { install as canvasCoverBackground } from './canvas.cover-background'
-import { install as objectExportEvents } from './object.export-events'
-import { install as objectExportAnimations } from './object.export-animations'
-import { install as canvasShortcutsDelete } from './canvas.shortcuts.delete'
-import { install as canvasShortcutsSelectAll } from './canvas.shortcuts.select-all'
-import { install as canvasShortcutsMove } from './canvas.shortcuts.move'
-import { install as canvasShortcutsOrder } from './canvas.shortcuts.order'
-import { install as canvasShortcutsRotate } from './canvas.shortcuts.rotate'
-import { install as canvasShortcutsGroup } from './canvas.shortcuts.group'
-import { install as canvasShortcutsCopy } from './canvas.shortcuts.copy'
-import { install as canvasDrop } from './canvas.drop'
-import { install as canvasGuidelines } from './canvas.guidelines'
 
-import { install as canvasShortcuts } from './canvas.shortcuts'
-import { install as canvasExternalElements } from './canvas.external-elements'
+import { default as textVerticalAlign } from './text.vertical-align'
+import { default as imageImport } from './image.import'
+import { default as canvasCoverBackground } from './canvas.cover-background'
+import { default as objectExportEvents } from './object.export-events'
+import { default as objectExportAnimations } from './object.export-animations'
+import { default as canvasShortcutsDelete } from './canvas.shortcuts.delete'
+import { default as canvasShortcutsSelectAll } from './canvas.shortcuts.select-all'
+import { default as canvasShortcutsMove } from './canvas.shortcuts.move'
+import { default as canvasShortcutsOrder } from './canvas.shortcuts.order'
+import { default as canvasShortcutsRotate } from './canvas.shortcuts.rotate'
+import { default as canvasShortcutsGroup } from './canvas.shortcuts.group'
+import { default as canvasShortcutsCopy } from './canvas.shortcuts.copy'
+import { default as canvasDrop } from './canvas.drop'
+import { default as canvasGuidelines } from './canvas.guidelines'
+import { default as canvasShortcuts } from './canvas.shortcuts'
+import { default as canvasExternalElements } from './canvas.external-elements'
 
 export function install(instance: typeof fabric) {
   textVerticalAlign(instance)
@@ -53,4 +53,8 @@ export {
   canvasShortcutsCopy,
   canvasDrop,
   canvasGuidelines,
+}
+
+if (window.fabric) {
+  install(window.fabric)
 }

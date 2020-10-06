@@ -1,19 +1,17 @@
-import { fabric } from 'fabric'
-import { extendMethod } from './utils'
-import { imageImport } from '.'
+import imageImport from './image.import'
+import { extendMethod, extension } from './utils'
 
-declare module 'fabric' {
-  namespace fabric {}
-}
+export default extension('canvas.cover-background', (fabric) => {
+  imageImport(fabric)
 
-export function install(instance: typeof fabric) {
-  imageImport(instance)
-
-  instance.util.object.extend(instance.StaticCanvas.prototype, {
+  /**
+   * Extend canvas.
+   */
+  fabric.util.object.extend(fabric.StaticCanvas.prototype, {
     /**
      * @private
      */
-    toJSON: extendMethod(instance.StaticCanvas, 'toJSON', function (object: any) {
+    toJSON: extendMethod(fabric.StaticCanvas, 'toJSON', function (object: any) {
       if (object.backgroundImage && object.backgroundImage.getSrc) {
         object.backgroundImage = object.backgroundImage.getSrc()
       } else {
@@ -54,7 +52,7 @@ export function install(instance: typeof fabric) {
         const width = this.getWidth() || 0
         const height = this.getHeight() || 0
 
-        this[property] = await instance.Image.from(value, {
+        this[property] = await fabric.Image.from(value, {
           size: 'cover',
           width: width / zoom,
           height: height / zoom,
@@ -65,7 +63,7 @@ export function install(instance: typeof fabric) {
         loaded[property] = true
         callback && callback()
       } else {
-        const methodName = ('set' + instance.util.string.capitalize(property, true)) as MethodsName<
+        const methodName = ('set' + fabric.util.string.capitalize(property, true)) as MethodsName<
           fabric.StaticCanvas
         >
 
@@ -76,8 +74,4 @@ export function install(instance: typeof fabric) {
       }
     },
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

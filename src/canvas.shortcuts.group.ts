@@ -1,32 +1,22 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts } from '.'
+import canvasShortcuts from './canvas.shortcuts'
+import { extension } from './utils'
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
+export default extension('canvas.shortcuts.group', (fabric) => {
+  canvasShortcuts(fabric)
 
-  instance.util.object.extend(instance.Canvas.prototype, {
-    /**
-     * List of shortcuts.
-     */
-    shortcuts: {
-      ...instance.Canvas.prototype.shortcuts,
-      ['ctrl+g'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object instanceof instance.ActiveSelection) {
-          object.toGroup()
-        } else if (object instanceof instance.Group) {
-          const objects = object.getObjects()
-          object._restoreObjectsState()
-          this.remove(object)
-          this.add(...objects)
-          this.setActiveObject(new instance.ActiveSelection(objects, { canvas: this }))
-          this.requestRenderAll()
-        }
-      },
-    },
-  })
-}
+  function group(canvas: fabric.Canvas) {
+    const object = canvas.getActiveObject()
+    if (object instanceof fabric.ActiveSelection) {
+      object.toGroup()
+    } else if (object instanceof fabric.Group) {
+      const objects = object.getObjects()
+      object._restoreObjectsState()
+      canvas.remove(object)
+      canvas.add(...objects)
+      canvas.setActiveObject(new fabric.ActiveSelection(objects, { canvas: canvas }))
+      canvas.requestRenderAll()
+    }
+  }
 
-if (window.fabric) {
-  install(window.fabric)
-}
+  fabric.util.registerShortcut('ctrl+g', group)
+})

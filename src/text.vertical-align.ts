@@ -1,29 +1,14 @@
-import { fabric } from 'fabric'
-import { extendMethod } from './utils'
+import { extendMethod, extension } from './utils'
 
-declare module 'fabric' {
-  namespace fabric {
-    interface Text {
-      verticalAlign: 'top' | 'middle' | 'bottom'
-      _getTotalLineHeights(): number
-      _getTopOffset(): number
-    }
-    interface IText {
-      _getSelectionStartOffsetY(): number
-      missingNewlineOffset(index: number): number
-    }
-  }
-}
-
-export function install(instance: typeof fabric) {
-  instance.util.object.extend(instance.Text.prototype, {
+export default extension('text.vertical-align', (fabric) => {
+  fabric.util.object.extend(fabric.Text.prototype, {
     /**
      * Properties which when set cause object to change dimensions
      *
      * @type {array}
      * @private
      */
-    _dimensionAffectingProps: instance.Text.prototype._dimensionAffectingProps.concat(
+    _dimensionAffectingProps: fabric.Text.prototype._dimensionAffectingProps.concat(
       'verticalAlign'
     ),
     /**
@@ -34,14 +19,14 @@ export function install(instance: typeof fabric) {
      *
      * @type {array}
      */
-    stateProperties: instance.Text.prototype.stateProperties!.concat('verticalAlign'),
+    stateProperties: fabric.Text.prototype.stateProperties!.concat('verticalAlign'),
 
     /**
      * List of properties to consider when checking if cache needs refresh.
      *
      * @type {array}
      */
-    cacheProperties: instance.Text.prototype.cacheProperties!.concat('verticalAlign'),
+    cacheProperties: fabric.Text.prototype.cacheProperties!.concat('verticalAlign'),
 
     /**
      * Vertical alignment of the text.
@@ -80,9 +65,9 @@ export function install(instance: typeof fabric) {
     /**
      * Extend the initialize function to prevent scaling.
      *
-     * @return {instance.Text}
+     * @return {fabric.Text}
      */
-    initialize: extendMethod(instance.Text, 'initialize', function () {
+    initialize: extendMethod(fabric.Text, 'initialize', function () {
       this.on('scaling', () => {
         this.set({
           width: this.width! * this.scaleX!,
@@ -98,7 +83,7 @@ export function install(instance: typeof fabric) {
      *
      * @return {any}
      */
-    toObject: extendMethod(instance.Text, 'toObject', function (object: any) {
+    toObject: extendMethod(fabric.Text, 'toObject', function (object: any) {
       object.verticalAlign = this.verticalAlign
       return object
     }),
@@ -136,7 +121,7 @@ export function install(instance: typeof fabric) {
     },
   })
 
-  instance.util.object.extend(instance.IText.prototype, {
+  fabric.util.object.extend(fabric.IText.prototype, {
     /**
      * Get the selection stzrt offset Y.
      *
@@ -208,8 +193,4 @@ export function install(instance: typeof fabric) {
       return this._getNewSelectionStartFromOffset(mouseOffset, prevWidth, width, charIndex, jlen)
     },
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

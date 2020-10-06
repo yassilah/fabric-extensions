@@ -1,83 +1,30 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts } from '.'
+import canvasShortcuts from './canvas.shortcuts'
+import { extension } from './utils'
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
+export default extension('canvas.shortcuts.move', (fabric) => {
+  canvasShortcuts(fabric)
 
-  instance.util.object.extend(instance.Canvas.prototype, {
-    /**
-     * List of shortcuts.
-     */
-    shortcuts: {
-      ...instance.Canvas.prototype.shortcuts,
-      arrowleft(this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('left', object.left! - 1).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      arrowright(this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('left', object.left! + 1).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      arrowup(this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('top', object.top! - 1).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      arrowdown(this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('top', object.top! + 1).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['arrowleft+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('left', object.left! - 10).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['arrowright+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('left', object.left! + 10).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['arrowup+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('top', object.top! - 10).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-      ['arrowdown+shift'](this: fabric.Canvas) {
-        const object = this.getActiveObject()
-        if (object) {
-          object.set('top', object.top! + 10).setCoords()
-          this.fire('object:modified', { target: null })
-          this.requestRenderAll()
-        }
-      },
-    },
-  })
-}
+  function move(direction: 'left' | 'up' | 'right' | 'down', value: number) {
+    const prop = ['left', 'right'].includes(direction) ? 'left' : ('top' as keyof fabric.Object)
+    const multiplier = ['left', 'up'].includes(direction) ? -1 : 1
 
-if (window.fabric) {
-  install(window.fabric)
-}
+    return function (canvas: fabric.Canvas) {
+      const object = canvas.getActiveObject()
+      if (object) {
+        const newValue = object[prop] + value * multiplier
+        object.set(prop, newValue).setCoords()
+        canvas.fire('object:modified', { target: object })
+        canvas.requestRenderAll()
+      }
+    }
+  }
+
+  fabric.util.registerShortcut('arrowleft', move('left', 1))
+  fabric.util.registerShortcut('arrowleft+shift', move('left', 10))
+  fabric.util.registerShortcut('arrowright', move('right', 1))
+  fabric.util.registerShortcut('arrowright+shift', move('right', 10))
+  fabric.util.registerShortcut('arrowup', move('up', 1))
+  fabric.util.registerShortcut('arrowup+shift', move('up', 10))
+  fabric.util.registerShortcut('arrowdown', move('down', 1))
+  fabric.util.registerShortcut('arrowdown+shift', move('down', 10))
+})

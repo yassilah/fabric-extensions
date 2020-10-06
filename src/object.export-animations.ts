@@ -1,67 +1,27 @@
 import { fabric } from 'fabric'
-import { CustomAnimation, IUtilAminEaseFunction } from 'fabric/fabric-impl'
+import { extendMethod, extension } from './utils'
 import pick from 'lodash.pick'
-import { extendMethod } from './utils'
 
-declare module 'fabric' {
-  namespace fabric {
-    let animations: {
-      [key: string]: <T extends Object = Object>(
-        this: T,
-        object: T,
-        animation: CustomAnimation<T>
-      ) => CustomAnimation<any>
-    }
-    interface Object {
-      animations: CustomAnimation<this>[]
-      __beforeAnimation?: Partial<Object>
-      __setAnimationsProxy(): void
-      __animationsProxySetHandler(
-        callbacks: any[],
-        animations: CustomAnimation<this>[],
-        index: number,
-        animation: CustomAnimation<this>,
-        receiver: any
-      ): boolean
-      __animationsProxyDeleteHandler(
-        callbacks: any[],
-        animations: CustomAnimation<this>[],
-        index: number
-      ): boolean
-      __storeOriginal(animation: CustomAnimation<this>): this
-      __restoreOriginal(object: Object): this
-    }
-    interface CustomAnimation<T extends Object> {
-      name?: string
-      trigger?: 'mousedown' | 'mouseup' | 'mouseover' | 'dblclick' | 'tripleclick' | string
-      data?: any
-      from?: Partial<T>
-      to?: Partial<T>
-      delay?: number
-      duration?: number
-      times?: number
-      reverse?: boolean
-      easing?: keyof IUtil['ease']
-      originX?: Object['originX']
-      originY?: Object['originY']
-    }
-    interface IAnimationOptions {
-      abort?(): boolean
-    }
-    interface AnimationCtx<T extends Object = Object> {
-      (): void
-      iteration: number
-      abort: boolean
-      from: Partial<T>
-      to: Partial<T>
-    }
+export default extension('object.export-animations', (fabric) => {
+  /**
+   * ist of available animations.
+   */
+  fabric.animations = {}
+
+  /**
+   * Register a new animation.
+   *
+   * @param name
+   * @param callback
+   */
+  fabric.util.registerAnimation = function (name, callback) {
+    fabric.animations[name] = callback
   }
-}
 
-export function install(instance: typeof fabric) {
-  instance.animations = {}
-
-  instance.util.object.extend(instance.Object.prototype, {
+  /**
+   * Extend object.
+   */
+  fabric.util.object.extend(fabric.Object.prototype, {
     /**
      * List of stored animations.
      */
@@ -70,9 +30,9 @@ export function install(instance: typeof fabric) {
     /**
      * Extend the initialize function to register animations on initialization.
      *
-     * @return {instance.Object}
+     * @return {fabric.Object}
      */
-    initialize: extendMethod(instance.Object, 'initialize', function () {
+    initialize: extendMethod(fabric.Object, 'initialize', function () {
       this.on('added', this.__setAnimationsProxy.bind(this))
     }),
 
@@ -82,7 +42,7 @@ export function install(instance: typeof fabric) {
      */
     __setAnimationsProxy(this: fabric.Object) {
       const callbacks: ((...args: any) => void)[] = []
-      const animations: CustomAnimation<fabric.Object>[] = [...this.animations]
+      const animations: fabric.CustomAnimation<fabric.Object>[] = [...this.animations]
 
       this.animations = new Proxy(animations, {
         set: this.__animationsProxySetHandler.bind(this, callbacks),
@@ -103,14 +63,14 @@ export function install(instance: typeof fabric) {
      */
     __animationsProxySetHandler<T extends fabric.Object>(
       callbacks: any[],
-      animations: CustomAnimation<T>[],
+      animations: fabric.CustomAnimation<T>[],
       index: number,
-      animation: CustomAnimation<T>,
+      animation: fabric.CustomAnimation<T>,
       receiver: any
     ) {
       if (!isNaN(index)) {
-        const options = instance.animations[animation.name!]
-          ? instance.animations[animation.name!](this, animation)
+        const options = fabric.animations[animation.name!]
+          ? fabric.animations[animation.name!](this, animation)
           : animation
 
         this.canvas?.fire('object:modified', { target: this })
@@ -136,7 +96,7 @@ export function install(instance: typeof fabric) {
      */
     __animationsProxyDeleteHandler<T extends fabric.Object>(
       callbacks: any[],
-      animations: CustomAnimation<T>[],
+      animations: fabric.CustomAnimation<T>[],
       index: number
     ) {
       if (!isNaN(index)) {
@@ -162,11 +122,11 @@ export function install(instance: typeof fabric) {
       const object = this
 
       const animate = (to: Partial<T>, ctx: fabric.AnimationCtx<T>) => {
-        this.animate(instance.util.object.clone(to), {
+        this.animate(fabric.util.object.clone(to), {
           abort: () => this.canvas?.selection || ctx.abort,
           duration: duration,
           easing: animation.easing
-            ? instance.util.ease[animation.easing]
+            ? fabric.util.ease[animation.easing]
             : (((t, b, c, d) => b + (t / d) * c) as fabric.IUtilAminEaseFunction),
           onChange: this.canvas?.requestRenderAll.bind(this.canvas),
           onComplete: () => {
@@ -188,8 +148,8 @@ export function install(instance: typeof fabric) {
       const ctx: any = () => {
         ctx.iteration = 0
         ctx.abort = false
-        ctx.to = instance.util.object.clone(to || {})
-        ctx.from = instance.util.object.clone(from || pick(this, ...Object.keys(to || {})))
+        ctx.to = fabric.util.object.clone(to || {})
+        ctx.from = fabric.util.object.clone(from || pick(this, ...Object.keys(to || {})))
         object.__storeOriginal(animation)
 
         setTimeout(() => {
@@ -213,7 +173,7 @@ export function install(instance: typeof fabric) {
 
       if (animation.originX || animation.originY) {
         const { x, y } = this.translateToGivenOrigin(
-          new instance.Point(this.left!, this.top!),
+          new fabric.Point(this.left!, this.top!),
           this.__beforeAnimation.originX!,
           this.__beforeAnimation.originY!,
           animation.originX || this.originX!,
@@ -240,7 +200,7 @@ export function install(instance: typeof fabric) {
 
       if (this.__beforeAnimation?.originX || this.__beforeAnimation?.originY) {
         const { x, y } = this.translateToGivenOrigin(
-          new instance.Point(object.left!, object.top!),
+          new fabric.Point(object.left!, object.top!),
           object.originX!,
           object.originY!,
           this.__beforeAnimation.originX || object.originX!,
@@ -260,15 +220,10 @@ export function install(instance: typeof fabric) {
      *
      * @return {any}
      */
-    toObject: extendMethod(instance.Object, 'toObject', function (object: any) {
+    toObject: extendMethod(fabric.Object, 'toObject', function (object: any) {
       object.animations = this.animations
       this.__restoreOriginal(object)
-
       return object
     }),
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

@@ -1,29 +1,24 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts, canvasExternalElements } from '.'
-import { extendMethod } from './utils'
+import canvasExternalElements from './canvas.external-elements'
+import canvasShortcuts from './canvas.shortcuts'
+import { extendMethod, extension } from './utils'
 
-declare module 'fabric' {
-  namespace fabric {
-    let excludeFromCopy: string[]
-    interface Canvas {
-      __registerShortcutsCopyCallback(event: ClipboardEvent): void
-      __registerShortcutsPasteCallback(event: ClipboardEvent): void
-      __createCopy(): any
-    }
-  }
-}
+export default extension('canvas.shortcuts.copy', (fabric) => {
+  canvasShortcuts(fabric)
+  canvasExternalElements(fabric)
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
-  canvasExternalElements(instance)
+  /**
+   * The properties to exclude when copying.
+   */
+  fabric.excludeFromCopy = []
 
-  instance.excludeFromCopy = []
-
-  instance.util.object.extend(instance.Canvas.prototype, {
+  /**
+   * Extend canvas.
+   */
+  fabric.util.object.extend(fabric.Canvas.prototype, {
     /**
      * Register the shortcuts.
      */
-    __registerShortcuts: extendMethod(instance.Canvas, '__registerShortcuts', function () {
+    __registerShortcuts: extendMethod(fabric.Canvas, '__registerShortcuts', function () {
       if (document) {
         document.addEventListener(
           'copy',
@@ -39,7 +34,7 @@ export function install(instance: typeof fabric) {
     /**
      * Unregister the shortcuts.
      */
-    __unregisterShortcuts: extendMethod(instance.Canvas, '__unregisterShortcuts', function () {
+    __unregisterShortcuts: extendMethod(fabric.Canvas, '__unregisterShortcuts', function () {
       if (document) {
         document.removeEventListener('copy', this.__registerShortcutsCopyCallback)
         document.removeEventListener('paste', this.__registerShortcutsPasteCallback)
@@ -80,15 +75,15 @@ export function install(instance: typeof fabric) {
         const json = object.toJSON()
 
         if (object.group) {
-          const { x, y } = instance.util.transformPoint(
-            new instance.Point(json.left, json.top),
+          const { x, y } = fabric.util.transformPoint(
+            new fabric.Point(json.left, json.top),
             object.group.calcTransformMatrix()
           )
           json.left = x
           json.top = y
         }
 
-        instance.excludeFromCopy.forEach((key) => {
+        fabric.excludeFromCopy.forEach((key) => {
           delete json[key]
         })
 
@@ -96,8 +91,4 @@ export function install(instance: typeof fabric) {
       })
     },
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

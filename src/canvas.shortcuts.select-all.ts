@@ -1,25 +1,11 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts } from '.'
+import canvasShortcuts from './canvas.shortcuts'
+import { extension } from './utils'
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
+export default extension('canvas.shortcuts.select-all', (fabric) => {
+  canvasShortcuts(fabric)
 
-  instance.util.object.extend(instance.Canvas.prototype, {
-    /**
-     * List of shortcuts.
-     */
-    shortcuts: {
-      ...instance.Canvas.prototype.shortcuts,
-      ['ctrl+a'](this: fabric.Canvas) {
-        const selection = new instance.ActiveSelection(this.getObjects(), {
-          canvas: this,
-        })
-        this.setActiveObject(selection).requestRenderAll()
-      },
-    },
+  fabric.util.registerShortcut('ctrl+a', function (canvas: fabric.Canvas) {
+    const selection = new fabric.ActiveSelection(canvas.getObjects(), { canvas })
+    canvas.setActiveObject(selection).requestRenderAll()
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

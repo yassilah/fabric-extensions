@@ -1,35 +1,26 @@
-import { Console } from 'console'
 import { fabric } from 'fabric'
-import { CustomEvent } from 'fabric/fabric-impl'
-import { extendMethod } from './utils'
+import { extendMethod, extension } from './utils'
 
-declare module 'fabric' {
-  namespace fabric {
-    let events: { [key: string]: (this: Object, object: Object, event: CustomEvent) => void }
-    interface Object {
-      events: CustomEvent[]
-      __setEventsProxy(): void
-      __eventsProxySetHandler(
-        callbacks: any[],
-        events: CustomEvent[],
-        index: number,
-        event: CustomEvent,
-        receiver: any
-      ): boolean
-      __eventsProxyDeleteHandler(callbacks: any[], events: CustomEvent[], index: number): boolean
-    }
-    interface CustomEvent {
-      name?: string
-      trigger: 'mousedown' | 'mouseup' | 'mouseover' | 'dblclick' | 'tripleclick' | string
-      data?: any
-    }
+export default extension('object.export-events', (fabric) => {
+  /**
+   * ist of available events.
+   */
+  fabric.events = {}
+
+  /**
+   * Register a new event.
+   *
+   * @param name
+   * @param callback
+   */
+  fabric.util.registerEvent = function (name, callback) {
+    fabric.events[name] = callback
   }
-}
 
-export function install(instance: typeof fabric) {
-  instance.events = {}
-
-  instance.util.object.extend(instance.Object.prototype, {
+  /**
+   * Extend object.
+   */
+  fabric.util.object.extend(fabric.Object.prototype, {
     /**
      * List of stored events.
      */
@@ -38,9 +29,9 @@ export function install(instance: typeof fabric) {
     /**
      * Extend the initialize function to register events on initialization.
      *
-     * @return {instance.Object}
+     * @return {fabric.Object}
      */
-    initialize: extendMethod(instance.Object, 'initialize', function () {
+    initialize: extendMethod(fabric.Object, 'initialize', function () {
       this.on('added', this.__setEventsProxy.bind(this))
     }),
 
@@ -50,7 +41,7 @@ export function install(instance: typeof fabric) {
      */
     __setEventsProxy(this: fabric.Object) {
       const callbacks: ((...args: any) => void)[] = []
-      const events: CustomEvent[] = [...this.events]
+      const events: fabric.CustomEvent[] = [...this.events]
 
       this.events = new Proxy(events, {
         set: this.__eventsProxySetHandler.bind(this, callbacks),
@@ -71,14 +62,14 @@ export function install(instance: typeof fabric) {
      */
     __eventsProxySetHandler(
       callbacks: any[],
-      events: CustomEvent[],
+      events: fabric.CustomEvent[],
       index: number,
-      event: CustomEvent,
+      event: fabric.CustomEvent,
       receiver: any
     ) {
       if (!isNaN(index)) {
-        if (event.name && instance.events[event.name]) {
-          callbacks[index] = instance.events[event.name].bind(this, this, event)
+        if (event.name && fabric.events[event.name]) {
+          callbacks[index] = fabric.events[event.name].bind(this, this, event)
           this.on(event.trigger, callbacks[index])
           this.canvas?.fire('object:modified', { target: this })
         } else {
@@ -96,7 +87,7 @@ export function install(instance: typeof fabric) {
      * @param events
      * @param index
      */
-    __eventsProxyDeleteHandler(callbacks: any[], events: CustomEvent[], index: number) {
+    __eventsProxyDeleteHandler(callbacks: any[], events: fabric.CustomEvent[], index: number) {
       if (!isNaN(index)) {
         this.off(events[index].trigger, callbacks[index])
         this.canvas?.fire('object:modified', { target: this })
@@ -110,13 +101,9 @@ export function install(instance: typeof fabric) {
      *
      * @return {any}
      */
-    toObject: extendMethod(instance.Object, 'toObject', function (object: any) {
+    toObject: extendMethod(fabric.Object, 'toObject', function (object: any) {
       object.events = this.events
       return object
     }),
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})

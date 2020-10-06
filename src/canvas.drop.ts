@@ -1,24 +1,19 @@
-import { fabric } from 'fabric'
-import { canvasShortcuts, canvasExternalElements } from '.'
-import { extendMethod } from './utils'
+import canvasExternalElements from './canvas.external-elements'
+import canvasShortcuts from './canvas.shortcuts'
+import { extendMethod, extension } from './utils'
 
-declare module 'fabric' {
-  namespace fabric {
-    interface Canvas {
-      __registerShortcutsDropCallback(event: DragEvent): void
-    }
-  }
-}
+export default extension('canvas.drop', (fabric) => {
+  canvasShortcuts(fabric)
+  canvasExternalElements(fabric)
 
-export function install(instance: typeof fabric) {
-  canvasShortcuts(instance)
-  canvasExternalElements(instance)
-
-  instance.util.object.extend(instance.Canvas.prototype, {
+  /**
+   * Extend canvas.
+   */
+  fabric.util.object.extend(fabric.Canvas.prototype, {
     /**
      * Register the shortcuts.
      */
-    __registerShortcuts: extendMethod(instance.Canvas, '__registerShortcuts', function () {
+    __registerShortcuts: extendMethod(fabric.Canvas, '__registerShortcuts', function () {
       if (document) {
         document.addEventListener(
           'drop',
@@ -30,7 +25,7 @@ export function install(instance: typeof fabric) {
     /**
      * Unregister the shortcuts.
      */
-    __unregisterShortcuts: extendMethod(instance.Canvas, '__unregisterShortcuts', function () {
+    __unregisterShortcuts: extendMethod(fabric.Canvas, '__unregisterShortcuts', function () {
       if (document) {
         document.removeEventListener('drop', this.__registerShortcutsDropCallback)
       }
@@ -51,8 +46,4 @@ export function install(instance: typeof fabric) {
       }
     },
   })
-}
-
-if (window.fabric) {
-  install(window.fabric)
-}
+})
