@@ -16,6 +16,7 @@ import { default as canvasDrop } from './canvas.drop'
 import { default as canvasGuidelines } from './canvas.guidelines'
 import { default as canvasShortcuts } from './canvas.shortcuts'
 import { default as canvasExternalElements } from './canvas.external-elements'
+import { default as icon } from './icon'
 
 export function install(instance: typeof fabric) {
   textVerticalAlign(instance)
@@ -34,6 +35,7 @@ export function install(instance: typeof fabric) {
   canvasShortcutsCopy(instance)
   canvasDrop(instance)
   canvasGuidelines(instance)
+  icon(instance)
 }
 
 export {
@@ -53,6 +55,7 @@ export {
   canvasShortcutsCopy,
   canvasDrop,
   canvasGuidelines,
+  icon,
 }
 
 if (window.fabric) {
