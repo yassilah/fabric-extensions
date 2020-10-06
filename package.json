@@ -1,6 +1,6 @@
 {
   "name": "@yassidev/fabric-extensions",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Extensions to fabric.js",
   "keywords": [],
   "main": "dist/fabric-extensions.umd.js",
