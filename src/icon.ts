@@ -110,6 +110,18 @@ export default extension('icon', (fabric) => {
       return this.callSuper('toObject', propertiesToInclude.concat('iconName', 'iconLibrary'))
     },
   })
+
+  /**
+   * From object.
+   *
+   * @param object
+   * @param callback
+   */
+  fabric.Icon.fromObject = function (object: fabric.IIconOptions, callback?: Function) {
+    const icon = new fabric.Icon(object)
+    if (callback) callback(icon)
+    return icon
+  }
 })
 
 declare module 'fabric' {
@@ -127,6 +139,8 @@ declare module 'fabric' {
       __findIconPath(iconName: string, iconLibrary?: string): string
       setIcon(iconName: string, iconLibrary?: string): void
       __setIconDimensions(): this
+      constructor(options: IIconOptions)
+      static fromObject(object: IIconOptions, callback?: Function): Icon
     }
     interface IIconOptions extends IPathOptions {
       iconName?: string
