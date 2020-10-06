@@ -65,12 +65,15 @@ import { canvasDrop } from '@yassidev/fabric-extensions'
 canvasDrop(fabric)
 
 fabric.util.registerDataTransferType('image', (data: DataTransferItem, canvas: fabric.Canvas) => {
-// do whatever you want with images.
+  // do whatever you want with images.
 })
 
-fabric.util.registerDataTransferType('image/jpeg', (data: DataTransferItem, canvas: fabric.Canvas) => {
-// do whatever you want with JPEG images specifically.
-})
+fabric.util.registerDataTransferType(
+  'image/jpeg',
+  (data: DataTransferItem, canvas: fabric.Canvas) => {
+    // do whatever you want with JPEG images specifically.
+  }
+)
 ```
 
 #### Canvas Guidelines
@@ -96,18 +99,22 @@ canvasShortcutsCopy(fabric)
 canvasShortcutsGroup(fabric)
 
 fabric.util.registerShortcut('ctrl+alt+m', (canvas: Canvas, event: KeyboardEvent) => {
-// do something
+  // do something
 })
 ```
 
 These are the currently available shortcuts:
 
-* [ ] copy/paste: using the native copy/paste ClipboardEvent
-* [ ] delete: Delete or Backspace key to remove an object
-* [ ] group: Ctrl+G to group/ungroup the selection
-* [ ] move: ArrowLeft/Right/Up/Down to move your selection (+/- 1)
-* [ ] move more: ArrowLeft/Right/Up/Down + Shift to move your selection (+/- 10)
-
+- [x] copy/paste: using the native copy/paste ClipboardEvent
+- [x] delete: Delete or Backspace key to remove an object
+- [x] group: Ctrl+G to group/ungroup the selection
+- [x] move: ArrowLeft/Right/Up/Down to move your selection (+/- 1)
+- [x] move more: ArrowLeft/Right/Up/Down + Shift to move your selection (+/- 10)
+- [x] rotate: ArrowLeft/Right + Ctrl to rotate your selection (+/- 1deg)
+- [x] rotate more: ArrowLeft/Right + Ctrl + Shift to rotate your selection (+/- 10deg)
+- [x] order: ArrowUp/Down + Ctrl to bringForward / sendBackwards your selection.
+- [x] order more: ArrowUp/Down + Ctrl + Shift to bringToFront / sendToBack your selection.
+- [x] select all: Ctrl + A to select all objects.
 
 #### Image Import
 
@@ -155,7 +162,7 @@ const object = new fabric.Rect({
 			name: 'rotate',
 			trigger: 'mousedown',
 			duration: 2000 // customize the default animation
-		}, 
+		},
 		{
 			trigger: null,  // no trigger = on added
 			duration: 1000,
@@ -177,17 +184,20 @@ import { objectExportAnimations } from '@yassidev/fabric-extensions'
 
 objectExportAnimations(fabric)
 
-fabric.util.regiterEvent('link', (object: fabric.Object, event: fabric.CustomEvent, e: fabric.IEvent) => {
-	window.open(event.data.url)
-})
+fabric.util.regiterEvent(
+  'link',
+  (object: fabric.Object, event: fabric.CustomEvent, e: fabric.IEvent) => {
+    window.open(event.data.url)
+  }
+)
 
 const object = new fabric.Rect({
-	events: [
-		{
-			name: 'link',
-			data: { url: 'https://github.com' }
-		}
-	]
+  events: [
+    {
+      name: 'link',
+      data: { url: 'https://github.com' },
+    },
+  ],
 })
 ```
 
@@ -202,8 +212,8 @@ import { textVerticalAlign } from '@yassidev/fabric-extensions'
 textVerticalAlign(fabric)
 
 const object = new fabric.Textbox('Some text', {
-	verticalAlign: 'middle',
-	textAlign: 'center'
+  verticalAlign: 'middle',
+  textAlign: 'center',
 })
 ```
 
