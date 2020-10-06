@@ -125,6 +125,7 @@
   },
   "dependencies": {
     "fabric": "^4.2.0",
+    "heic2any": "^0.0.3",
     "lodash.pick": "^4.4.0",
     "patch-package": "^6.2.2"
   },

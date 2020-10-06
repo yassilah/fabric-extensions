@@ -1,5 +1,5 @@
-import { imageImport } from '.'
 import { extension } from './utils'
+import imageImport from './image.import'
 
 export default extension('canvas.external-elements', (fabric) => {
   imageImport(fabric)
@@ -92,13 +92,18 @@ export default extension('canvas.external-elements', (fabric) => {
           const zoom = canvas.getZoom() || 1
           const width = canvas.getWidth() || 0
           const height = canvas.getHeight() || 0
-          const image = await fabric.Image.fromFile(file, {
-            size: 'fit',
-            width: (width / zoom) * 0.5,
-            height: (height / zoom) * 0.5,
-            left: width / zoom / 2,
-            top: height / zoom / 2,
-          })
+          const image = await fabric.Image.fromFile(
+            file,
+            {
+              size: 'fit',
+              width: (width / zoom) * 0.5,
+              height: (height / zoom) * 0.5,
+              left: width / zoom / 2,
+              top: height / zoom / 2,
+            },
+            canvas
+          )
+
           resolve(image)
         }
       } catch {
@@ -119,6 +124,24 @@ export default extension('canvas.external-elements', (fabric) => {
           resolve({
             type: 'textbox',
             text: temp.innerText,
+          })
+        })
+      } catch {
+        reject('Could not add the text.')
+      }
+    })
+  })
+
+  /**
+   * Register the text/plain data type.
+   */
+  fabric.util.registerDataTransferType('text/plain', (data: DataTransferItem) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        data.getAsString((data: string) => {
+          resolve({
+            type: 'textbox',
+            text: data,
           })
         })
       } catch {
