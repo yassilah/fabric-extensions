@@ -80,8 +80,8 @@ export function install(instance: typeof fabric) {
         const json = object.toJSON()
 
         if (object.group) {
-          const { x, y } = fabric.util.transformPoint(
-            new fabric.Point(json.left, json.top),
+          const { x, y } = instance.util.transformPoint(
+            new instance.Point(json.left, json.top),
             object.group.calcTransformMatrix()
           )
           json.left = x

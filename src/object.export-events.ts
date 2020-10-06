@@ -38,7 +38,7 @@ export function install(instance: typeof fabric) {
     /**
      * Extend the initialize function to register events on initialization.
      *
-     * @return {fabric.Object}
+     * @return {instance.Object}
      */
     initialize: extendMethod(instance.Object, 'initialize', function () {
       this.on('added', this.__setEventsProxy.bind(this))

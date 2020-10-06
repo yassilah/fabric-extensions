@@ -45,7 +45,7 @@ export function install(instance: typeof fabric) {
       async __insertExternalObjects(json: any[]) {
         const promises = json.map((object) => {
           return new Promise((resolve: (object: fabric.Object) => void) => {
-            return fabric.util.getKlass(object.type, 'fabric').fromObject(object, resolve)
+            return instance.util.getKlass(object.type, 'fabric').fromObject(object, resolve)
           })
         })
 
@@ -113,7 +113,7 @@ export function install(instance: typeof fabric) {
           const zoom = this.getZoom() || 1
           const width = this.getWidth() || 0
           const height = this.getHeight() || 0
-          const image = await fabric.Image.fromFile(file, {
+          const image = await instance.Image.fromFile(file, {
             size: 'fit',
             width: (width / zoom) * 0.5,
             height: (height / zoom) * 0.5,

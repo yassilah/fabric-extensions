@@ -110,7 +110,7 @@ export function install(instance: typeof fabric) {
       _onImageLoad(this: HTMLImageElement, resolve: Function, options: fabric.IImageOptions = {}) {
         const { width = 0, left = 0, top = 0, height = 0, size = 'cover' } = options
         const scale = instance.Image._getScaleFromBackgroundSize(size, this, { width, height })
-        const shape = new fabric.Image(this, {
+        const shape = new instance.Image(this, {
           left: left - (this.naturalWidth / 2) * scale,
           top: top - (this.naturalHeight / 2) * scale,
           width: this.naturalWidth,
@@ -134,7 +134,7 @@ export function install(instance: typeof fabric) {
         destination: { width: number; height: number }
       ) {
         return size === 'cover'
-          ? fabric.util.findScaleToCover(source, destination)
+          ? instance.util.findScaleToCover(source, destination)
           : fabric.util.findScaleToFit(source, destination)
       },
     })

@@ -36,10 +36,6 @@ export function install(instance: typeof fabric) {
   canvasGuidelines(instance)
 }
 
-if (window.fabric) {
-  install(window.fabric)
-}
-
 export {
   textVerticalAlign,
   imageImport,

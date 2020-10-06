@@ -29,7 +29,7 @@ export function install(instance: typeof fabric) {
     /**
      *
      * List of properties to consider when checking if
-     * state of an object is changed ({@link instance.Object#hasStateChanged})
+     * state of an object is changed ({@link fabric.Object#hasStateChanged})
      * as well as for history (undo/redo) purposes
      *
      * @type {array}
@@ -80,7 +80,7 @@ export function install(instance: typeof fabric) {
     /**
      * Extend the initialize function to prevent scaling.
      *
-     * @return {fabric.Text}
+     * @return {instance.Text}
      */
     initialize: extendMethod(instance.Text, 'initialize', function () {
       this.on('scaling', () => {

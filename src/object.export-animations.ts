@@ -70,7 +70,7 @@ export function install(instance: typeof fabric) {
     /**
      * Extend the initialize function to register animations on initialization.
      *
-     * @return {fabric.Object}
+     * @return {instance.Object}
      */
     initialize: extendMethod(instance.Object, 'initialize', function () {
       this.on('added', this.__setAnimationsProxy.bind(this))
@@ -162,11 +162,11 @@ export function install(instance: typeof fabric) {
       const object = this
 
       const animate = (to: Partial<T>, ctx: fabric.AnimationCtx<T>) => {
-        this.animate(fabric.util.object.clone(to), {
+        this.animate(instance.util.object.clone(to), {
           abort: () => this.canvas?.selection || ctx.abort,
           duration: duration,
           easing: animation.easing
-            ? fabric.util.ease[animation.easing]
+            ? instance.util.ease[animation.easing]
             : (((t, b, c, d) => b + (t / d) * c) as fabric.IUtilAminEaseFunction),
           onChange: this.canvas?.requestRenderAll.bind(this.canvas),
           onComplete: () => {
@@ -188,8 +188,8 @@ export function install(instance: typeof fabric) {
       const ctx: any = () => {
         ctx.iteration = 0
         ctx.abort = false
-        ctx.to = fabric.util.object.clone(to || {})
-        ctx.from = fabric.util.object.clone(from || pick(this, ...Object.keys(to || {})))
+        ctx.to = instance.util.object.clone(to || {})
+        ctx.from = instance.util.object.clone(from || pick(this, ...Object.keys(to || {})))
         object.__storeOriginal(animation)
 
         setTimeout(() => {
@@ -213,7 +213,7 @@ export function install(instance: typeof fabric) {
 
       if (animation.originX || animation.originY) {
         const { x, y } = this.translateToGivenOrigin(
-          new fabric.Point(this.left!, this.top!),
+          new instance.Point(this.left!, this.top!),
           this.__beforeAnimation.originX!,
           this.__beforeAnimation.originY!,
           animation.originX || this.originX!,
@@ -240,7 +240,7 @@ export function install(instance: typeof fabric) {
 
       if (this.__beforeAnimation?.originX || this.__beforeAnimation?.originY) {
         const { x, y } = this.translateToGivenOrigin(
-          new fabric.Point(object.left!, object.top!),
+          new instance.Point(object.left!, object.top!),
           object.originX!,
           object.originY!,
           this.__beforeAnimation.originX || object.originX!,
