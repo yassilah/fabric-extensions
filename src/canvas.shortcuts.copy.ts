@@ -92,3 +92,14 @@ export default extension('canvas.shortcuts.copy', (fabric) => {
     },
   })
 })
+
+declare module 'fabric' {
+  namespace fabric {
+    let excludeFromCopy: string[]
+    interface Canvas {
+      __registerShortcutsCopyCallback(event: ClipboardEvent): void
+      __registerShortcutsPasteCallback(event: ClipboardEvent): void
+      __createCopy(): any
+    }
+  }
+}

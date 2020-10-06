@@ -58,3 +58,11 @@ export {
 if (window.fabric) {
   install(window.fabric)
 }
+
+declare module 'fabric' {
+  namespace fabric {
+    interface IUtil {
+      installedExtensions: { [key: string]: boolean }
+    }
+  }
+}
