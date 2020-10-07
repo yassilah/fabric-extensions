@@ -8,6 +8,7 @@ import {
 } from 'd3-geo'
 import { fabric } from 'fabric'
 import get from 'lodash.get'
+import pick from 'lodash.pick'
 import { extendMethod, extension } from './utils'
 
 export default extension('map', (fabric) => {
@@ -78,10 +79,24 @@ export default extension('map', (fabric) => {
     /**
      * Events to trigger on each  feature.
      */
-    _featuresEvents: ['mouseout', 'mousedown', 'mouseover'],
+    _featuresEvents: ['mouseout', 'mousedown', 'mouseover', 'mousedblclick', 'mousetripleclick'],
 
     /**
-     * Check subtarget events.
+     * Keys to consider for common styling.
+     */
+    _commonStyleKeys: [
+      'fill',
+      'fillRule',
+      'stroke',
+      'strokeWidth',
+      'strokDashArray',
+      'strokeLineCap',
+      'strokeDashOffset',
+      'strokeLineJoin',
+    ],
+
+    /**
+     * Check subtargets.
      */
     subTargetCheck: true,
 
@@ -93,10 +108,24 @@ export default extension('map', (fabric) => {
 
       if (['byKey', 'features', 'geoJson'].includes(key)) {
         self._visibleFeatures = undefined
+        self.updateMap()
+      } else if (self._commonStyleKeys.includes(key)) {
+        self.__setStyles()
+      } else if (['mode', 'width', 'height'].includes(key)) {
+        self.__setClipPath().updateMap()
       }
 
       return result
     }),
+
+    /**
+     * Update map paths.
+     */
+    updateMap(this: fabric.Map) {
+      this.remove(...this.getObjects())
+      this.add(...this.__getPaths())
+      return this
+    },
 
     /**
      * Set the Map.
@@ -104,9 +133,7 @@ export default extension('map', (fabric) => {
     setGeoJson(this: fabric.Map, geoJson?: string) {
       if (geoJson) this.geoJson = geoJson
       this._visibleFeatures = undefined
-      this.remove(...this.getObjects())
-      this.add(...this.__getPaths())
-      this.set({ dirty: true })
+      this.updateMap()
     },
 
     /**
@@ -119,21 +146,22 @@ export default extension('map', (fabric) => {
       this.scaleX = options.scaleX || 1
       this.scaleY = options.scaleY || 1
       this.add(...this.__getPaths())
-      return this
+      return this.__setStyles()
     },
 
     /**
      * Set the map paths.
      */
     __getPaths(this: fabric.Map) {
+      const json = this.__getGeoJson()
       const features = this.__getFeatures()
       const visible = this.__getVisibleFeatures()
-      const param = { type: 'FeatureCollection', features: this.mode ? visible : features } as any
+      const param = { ...json, features: this.mode ? visible : features }
       const center = geoCentroid(param)
       const projection = geoMercator().translate(center).fitSize([this.width!, this.height!], param)
       const pathProjection = geoPath().projection(projection)
-      const paths = visible.map(this.__getPath.bind(this, pathProjection))
-      return paths
+      const pathsToCreate = this.mode === 'focus' ? visible : features
+      return pathsToCreate.map(this.__getPath.bind(this, pathProjection))
     },
 
     /**
@@ -141,21 +169,28 @@ export default extension('map', (fabric) => {
      */
     __getPath(this: fabric.Map, pathProjection: GeoPath, feature: ExtendedFeature) {
       const id = get(feature, this.byKey)
-      const style = this.styles[id] || {}
       const { x, y } = this.getCenterPoint()
       const path = new fabric.Path(pathProjection(feature) || '', {
-        perPixelTargetFind: true,
         data: feature,
-        ...style,
+        perPixelTargetFind: true,
       })
       this._featuresEvents.forEach((event) => {
-        path.on(event, () => this.fire(`${event}:${id}`, { target: path }))
+        path.on(event, (e) => {
+          this.fire(`${event}:${id}`, e)
+          this.fire(`${event}:*`, e)
+        })
       })
-      return path.set({ left: path.left! - x, top: path.top! - y })
+
+      return path
+        .set({
+          left: path.left! + (this.left! - x) / this.scaleX!,
+          top: path.top! + (this.top! - y) / this.scaleY!,
+        })
+        .setCoords()
     },
 
     /**
-     * Fint the Map path.
+     * Get the visible features list.
      */
     __getVisibleFeatures(this: fabric.Map) {
       if (this._visibleFeatures) return this._visibleFeatures
@@ -167,14 +202,52 @@ export default extension('map', (fabric) => {
     },
 
     /**
-     * Fint the Map path.
+     * Get the features list.
      */
     __getFeatures(this: fabric.Map) {
+      return this.__getGeoJson().features
+    },
+
+    /**
+     * Get the geojson file.
+     */
+    __getGeoJson(this: fabric.Map) {
       try {
-        return fabric.geoJson[this.geoJson || fabric.defaultGeoJson].features
+        return fabric.geoJson[this.geoJson || fabric.defaultGeoJson]
       } catch {
         throw new Error('Could not get the features collection.')
       }
+    },
+
+    /**
+     * Set the clip path.
+     */
+    __setClipPath(this: fabric.Map) {
+      this.clipPath =
+        this.mode === 'zoom'
+          ? new fabric.Rect({
+              left: -this.width! / 2,
+              top: -this.height! / 2,
+              width: this.width,
+              height: this.height,
+            })
+          : undefined
+
+      return this
+    },
+
+    /**
+     * Set the clip path.
+     */
+    __setStyles(this: fabric.Map) {
+      const commonStyle = pick(this, ...this._commonStyleKeys)
+
+      this.forEachObject((object) => {
+        const style = this.styles[object.data.id] || {}
+        object.set({ ...commonStyle, ...style })
+      })
+
+      return this
     },
 
     /**
@@ -215,11 +288,16 @@ declare module 'fabric' {
       features: string[]
       _visibleFeatures: ExtendedFeature[] | undefined
       _featuresEvents: string[]
+      _commonStyleKeys: string[]
       constructor(options: IMapOptions)
+      updateMap(): Map
+      __getGeoJson(): ExtendedFeatureCollection
       __getFeatures(): ExtendedFeature[]
       __getVisibleFeatures(): ExtendedFeature[]
       __getPaths(): Path[]
       __getPath(projectionPath: GeoPath): Path
+      __setClipPath(): Map
+      __setStyles(): Map
       static fromObject(options: IMapOptions, callback?: Function): Map
     }
     interface IMapOptions extends IObjectOptions {

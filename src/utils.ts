@@ -19,7 +19,7 @@ export function extendMethod<
   const original = prototype[methodName] as Function
   return function (this: InstanceType<T>) {
     const result = original.apply(this, arguments)
-    callback.apply(this, [result].concat(arguments))
+    callback.apply(this, [result, ...Array.from(arguments)])
     return result
   }
 }
