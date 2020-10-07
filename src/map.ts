@@ -254,10 +254,14 @@ export default extension('map', (fabric) => {
      * To object.
      */
     toObject(propertiesToInclude: string[] = []) {
-      return this.callSuper(
+      const object = this.callSuper(
         'toObject',
         propertiesToInclude.concat('geoJson', 'styles', 'mode', 'byKey', 'features')
       )
+
+      delete object.objects
+
+      return object
     },
   })
 
