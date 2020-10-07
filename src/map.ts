@@ -260,6 +260,7 @@ export default extension('map', (fabric) => {
       )
 
       delete object.objects
+      delete object.clipPath
 
       return object
     },
