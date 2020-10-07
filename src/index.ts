@@ -17,6 +17,7 @@ import { default as canvasGuidelines } from './canvas.guidelines'
 import { default as canvasShortcuts } from './canvas.shortcuts'
 import { default as canvasExternalElements } from './canvas.external-elements'
 import { default as icon } from './icon'
+import { default as map } from './map'
 
 export function install(instance: typeof fabric) {
   textVerticalAlign(instance)
@@ -36,6 +37,7 @@ export function install(instance: typeof fabric) {
   canvasDrop(instance)
   canvasGuidelines(instance)
   icon(instance)
+  map(instance)
 }
 
 export {
@@ -56,6 +58,7 @@ export {
   canvasDrop,
   canvasGuidelines,
   icon,
+  map,
 }
 
 if (window.fabric) {

@@ -217,6 +217,69 @@ const object = new fabric.Textbox('Some text', {
 })
 ```
 
+#### Icons
+
+This extension will allow you to add SVG path icons into your canvases. The extensions creates a new class: fabric.Icon.
+
+```javascript
+import { fabric } from 'fabric'
+import { icons } from '@yassidev/fabric-extensions'
+import * as mdi from '@mdi/js'
+import { kebabCase } from 'lodash'
+
+icons(fabric)
+
+fabric.util.registerIconLibrary('mdi', () => {
+  return Object.entries(mdi).reduce((all, [key, value]) => {
+    const normalized = kebabCase(key.replace(/^mdi/, ''))
+    all[normalized] = value
+    return all
+  }, {})
+})
+
+const object = new fabric.Icon({
+  iconName: 'emoticon-happy-outline',
+  iconLibrary: 'mdi', // unnecessary here as there is only one library
+  width: 100,
+  height: 100,
+})
+```
+
+#### Map
+
+This extension will allow you to add dynamic GeoJson content as a group of paths into your canvas. The extensions creates a new class: fabric.Map.
+
+```javascript
+fabric.util.registerGeoJson('world', async () => {
+  const fetched = await fetch(
+    'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json'
+  )
+  return await fetched.json()
+})
+
+const map = new fabric.Map({
+  features: ['France'], // select the features you want to display or leave an empty array to display all
+  byKey: 'properties.name', // set the key by which the features are filtered
+  geojson: 'world', // unnecessary here as there is only one registered geojson
+  width: 500,
+  height: 500,
+})
+
+/**
+ * Create features-specific events!
+ */
+
+map.on('mouseover:France', ({ target }) => {
+  target.set({ fill: 'blue' })
+  instance.requestRenderAll()
+})
+
+map.on('mouseout:France', ({ target }) => {
+  target.set({ fill: 'black' })
+  instance.requestRenderAll()
+})
+```
+
 ##### License
 
 MIT
