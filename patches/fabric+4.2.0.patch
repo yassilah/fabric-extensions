@@ -12,7 +12,7 @@ index 68c6b3f..e96c121 100644
    var ctx = canvas.getSelectionContext(),
        aligningLineOffset = 5,
 diff --git a/node_modules/fabric/lib/centering_guidelines.js b/node_modules/fabric/lib/centering_guidelines.js
-index 5c6f6c8..305c583 100644
+index 5c6f6c8..61783e6 100644
 --- a/node_modules/fabric/lib/centering_guidelines.js
 +++ b/node_modules/fabric/lib/centering_guidelines.js
 @@ -4,27 +4,40 @@
@@ -79,7 +79,7 @@ index 5c6f6c8..305c583 100644
      var object = e.target,
          objectCenter = object.getCenterPoint(),
          transform = canvas._currentTransform;
-@@ -65,7 +78,10 @@ function initCenteringGuidelines(canvas) {
+@@ -65,10 +78,15 @@ function initCenteringGuidelines(canvas) {
      if (isInHorizontalCenter || isInVerticalCenter) {
        object.setPositionByOrigin(new fabric.Point((isInVerticalCenter ? canvasWidthCenter : objectCenter.x), (isInHorizontalCenter ? canvasHeightCenter : objectCenter.y)), 'center', 'center');
      }
@@ -89,9 +89,16 @@ index 5c6f6c8..305c583 100644
 +  canvas.on('object:moving', onObjectMovingScaling);
 +  canvas.on('object:scaling', onObjectMovingScaling);
  
-   canvas.on('before:render', function() {
-     canvas.clearContext(canvas.contextTop);
-@@ -85,4 +101,10 @@ function initCenteringGuidelines(canvas) {
+-  canvas.on('before:render', function() {
+-    canvas.clearContext(canvas.contextTop);
++  canvas.on('before:render', function () {
++    if (canvas.contextTop) {
++      canvas.clearContext(canvas.contextTop)
++    }
+   });
+ 
+   canvas.on('after:render', function() {
+@@ -85,4 +103,10 @@ function initCenteringGuidelines(canvas) {
      isInVerticalCenter = isInHorizontalCenter = null;
      canvas.renderAll();
    });
