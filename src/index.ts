@@ -2,6 +2,7 @@ import { fabric } from 'fabric'
 
 import { default as textVerticalAlign } from './text.vertical-align'
 import { default as imageImport } from './image.import'
+import { default as imageCrossOriginAnonymous } from './image.cross-origin-anonymous'
 import { default as canvasCoverBackground } from './canvas.cover-background'
 import { default as objectExportEvents } from './object.export-events'
 import { default as objectExportAnimations } from './object.export-animations'
@@ -16,12 +17,14 @@ import { default as canvasDrop } from './canvas.drop'
 import { default as canvasGuidelines } from './canvas.guidelines'
 import { default as canvasShortcuts } from './canvas.shortcuts'
 import { default as canvasExternalElements } from './canvas.external-elements'
+import { default as canvasToDataUrlPromise } from './canvas.to-data-url-promise'
 import { default as icon } from './icon'
 import { default as map } from './map'
 
 export function install(instance: typeof fabric) {
   textVerticalAlign(instance)
   imageImport(instance)
+  imageCrossOriginAnonymous(instance)
   canvasCoverBackground(instance)
   objectExportEvents(instance)
   objectExportAnimations(instance)
@@ -36,6 +39,7 @@ export function install(instance: typeof fabric) {
   canvasShortcutsCopy(instance)
   canvasDrop(instance)
   canvasGuidelines(instance)
+  canvasToDataUrlPromise(instance)
   icon(instance)
   map(instance)
 }
@@ -57,6 +61,7 @@ export {
   canvasShortcutsCopy,
   canvasDrop,
   canvasGuidelines,
+  canvasToDataUrlPromise,
   icon,
   map,
 }

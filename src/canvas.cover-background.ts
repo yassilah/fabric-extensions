@@ -60,6 +60,10 @@ export default extension('canvas.cover-background', (fabric) => {
           top: height / zoom / 2,
         })
 
+        const element = (this[property] as fabric.Image).getElement() as HTMLImageElement
+        if (element && !element.complete) {
+          element.addEventListener('load', this.requestRenderAll.bind(this))
+        }
         loaded[property] = true
         callback && callback()
       } else {

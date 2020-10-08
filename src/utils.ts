@@ -12,7 +12,8 @@ export function extendMethod<
     | typeof fabric.StaticCanvas
     | typeof fabric.Object
     | typeof fabric.Text
-    | typeof fabric.Group,
+    | typeof fabric.Group
+    | typeof fabric.Image,
   M extends MethodsName<T['prototype']>
 >(shape: T, methodName: M, callback: (this: InstanceType<T>, ...args: any) => any) {
   const prototype = shape.prototype as T['prototype']
