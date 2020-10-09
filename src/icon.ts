@@ -107,7 +107,12 @@ export default extension('icon', (fabric) => {
      * To object.
      */
     toObject(propertiesToInclude: string[] = []) {
-      return this.callSuper('toObject', propertiesToInclude.concat('iconName', 'iconLibrary'))
+      const object = this.callSuper(
+        'toObject',
+        propertiesToInclude.concat('iconName', 'iconLibrary')
+      )
+      delete object.path
+      return object
     },
   })
 
