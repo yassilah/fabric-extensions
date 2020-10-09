@@ -31,8 +31,11 @@ export default extension('object.export-events', (fabric) => {
      *
      * @return {fabric.Object}
      */
-    initialize: extendMethod(fabric.Object, 'initialize', function () {
+    initialize: extendMethod(fabric.Object, 'initialize', function (this: fabric.Object) {
       this.on('added', this.__setEventsProxy.bind(this))
+      if (this.events.length > 0) {
+        this.hoverCursor = 'pointer'
+      }
     }),
 
     /**
@@ -67,7 +70,7 @@ export default extension('object.export-events', (fabric) => {
       event: fabric.CustomEvent,
       receiver: any
     ) {
-      if (!isNaN(index)) {
+      if (!this.canvas?.selection && !isNaN(index)) {
         if (event.name && fabric.events[event.name]) {
           callbacks[index] = fabric.events[event.name].bind(this, this, event)
           this.on(event.trigger, callbacks[index])
@@ -88,7 +91,7 @@ export default extension('object.export-events', (fabric) => {
      * @param index
      */
     __eventsProxyDeleteHandler(callbacks: any[], events: fabric.CustomEvent[], index: number) {
-      if (!isNaN(index)) {
+      if (!this.canvas?.selection && !isNaN(index)) {
         this.off(events[index].trigger, callbacks[index])
         this.canvas?.fire('object:modified', { target: this })
       }
