@@ -84,3 +84,11 @@ export const normalizeEventKey = (event: {
     .toLowerCase()
     .trim()
 }
+
+declare module 'fabric' {
+  namespace fabric {
+    interface IUtil {
+      installedExtensions: { [key: string]: boolean }
+    }
+  }
+}

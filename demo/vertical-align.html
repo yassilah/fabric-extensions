@@ -9,9 +9,12 @@
   </head>
   <body>
     <canvas width="500" height="500" tabindex="1"></canvas>
+    <pre></pre>
     <script>
       const instance = new fabric.Canvas(document.querySelector('canvas'), {
         enableRetinaScaling: true,
+        selection: false,
+        includeDefaultValues: false
       })
       let textEditing = false
 
@@ -25,6 +28,14 @@
           instance.getElement().focus()
         }
       }
+
+      const circle = new fabric.Circle({ radius: 100, fill: 'transparent', stroke: 'black', strokeDashArray: [5, 10], 
+          includeDefaultValues: false})
+      instance.add(circle)
+      circle.animations.push({ from: { angle: 0 }, to: { angle: 360 }, duration: 1000, times: 1,  originX: 'center', originY: 'center' }, { to: { left: 360 }, preserve: true, duration: 1000, delay: 2000 })
+      setInterval(() => {
+        document.querySelector('pre').innerHTML = JSON.stringify(instance.toJSON(), null, 4)
+      }, 500)
     </script>
   </body>
 </html>

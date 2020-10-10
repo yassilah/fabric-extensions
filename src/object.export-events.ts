@@ -1,4 +1,5 @@
 import { fabric } from 'fabric'
+import { IEvent } from 'fabric/fabric-impl'
 import { extendMethod, extension } from './utils'
 
 export default extension('object.export-events', (fabric) => {
@@ -33,9 +34,6 @@ export default extension('object.export-events', (fabric) => {
      */
     initialize: extendMethod(fabric.Object, 'initialize', function (this: fabric.Object) {
       this.on('added', this.__setEventsProxy.bind(this))
-      if (this.events.length > 0) {
-        this.hoverCursor = 'pointer'
-      }
     }),
 
     /**
@@ -64,23 +62,46 @@ export default extension('object.export-events', (fabric) => {
      * @param receiver
      */
     __eventsProxySetHandler(
+      this: fabric.Object,
       callbacks: any[],
       events: fabric.CustomEvent[],
       index: number,
       event: fabric.CustomEvent,
       receiver: any
     ) {
-      if (!this.canvas?.selection && !isNaN(index)) {
-        if (event.name && fabric.events[event.name]) {
-          callbacks[index] = fabric.events[event.name].bind(this, this, event)
-          this.on(event.trigger, callbacks[index])
-          this.canvas?.fire('object:modified', { target: this })
-        } else {
-          throw new Error('This event does not exist.')
+      const value = Reflect.set(events, index, event, receiver)
+
+      if (value && !this.canvas?.selection && !isNaN(index)) {
+        this.__registerEvent(callbacks, index, event)
+
+        if (events.length > 0) {
+          this.hoverCursor = 'pointer'
         }
       }
 
-      return Reflect.set(events, index, event, receiver)
+      return value
+    },
+
+    /**
+     * Regiter a new event.
+     *
+     * @param callbacks
+     * @param index
+     * @param event
+     */
+    __registerEvent(
+      this: fabric.Object,
+      callbacks: any[],
+      index: number,
+      event: fabric.CustomEvent
+    ) {
+      if (event.name && fabric.events[event.name]) {
+        callbacks[index] = fabric.events[event.name].bind(this, this, event)
+        this.on(event.trigger, callbacks[index])
+        this.canvas?.fire('object:modified', { target: this })
+      } else {
+        throw new Error('This event does not exist.')
+      }
     },
 
     /**
@@ -90,13 +111,41 @@ export default extension('object.export-events', (fabric) => {
      * @param events
      * @param index
      */
-    __eventsProxyDeleteHandler(callbacks: any[], events: fabric.CustomEvent[], index: number) {
-      if (!this.canvas?.selection && !isNaN(index)) {
-        this.off(events[index].trigger, callbacks[index])
-        this.canvas?.fire('object:modified', { target: this })
+    __eventsProxyDeleteHandler(
+      this: fabric.Object,
+      callbacks: any[],
+      events: fabric.CustomEvent[],
+      index: number
+    ) {
+      const event = events[index]
+      const value = Reflect.deleteProperty(events, index)
+
+      if (value && !this.canvas?.selection && !isNaN(index)) {
+        this.__unregisterEvent(callbacks, event, index)
+
+        if (events.length === 1) {
+          this.hoverCursor = ''
+        }
       }
 
-      return Reflect.deleteProperty(events, index)
+      return value
+    },
+
+    /**
+     * Unregiter an event.
+     *
+     * @param callbacks
+     * @param index
+     * @param event
+     */
+    __unregisterEvent(
+      this: fabric.Object,
+      callbacks: any[],
+      event: fabric.CustomEvent,
+      index: number
+    ) {
+      this.off(event.trigger, callbacks[index])
+      this.canvas?.fire('object:modified', { target: this })
     },
 
     /**
@@ -117,6 +166,7 @@ declare module 'fabric' {
       [key: string]: <T extends Object = Object>(object: T, event: CustomEvent, e: IEvent) => void
     }
     interface Object {
+      __eventListeners?: { [key: string]: ((event: IEvent) => void)[] }
       events: CustomEvent[]
       __setEventsProxy(): void
       __eventsProxySetHandler(
@@ -126,7 +176,9 @@ declare module 'fabric' {
         event: CustomEvent,
         receiver: any
       ): boolean
+      __registerEvent(callbacks: any[], index: number, event: CustomEvent): void
       __eventsProxyDeleteHandler(callbacks: any[], events: CustomEvent[], index: number): boolean
+      __unregisterEvent(callbacks: any[], event: CustomEvent, index: number): void
     }
     interface CustomEvent {
       name?: string
