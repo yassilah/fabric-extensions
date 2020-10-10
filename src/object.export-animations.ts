@@ -173,6 +173,8 @@ export default extension('object.export-animations', (fabric) => {
       const { from, to, duration = 1000, delay = 0, times, reverse } = animation
 
       const animate = (to: Partial<T>, ctx: fabric.AnimationCtx<T>) => {
+        this.__isAnimated = true
+
         ctx.object.animate(fabric.util.object.clone(to), {
           abort: () => ctx.object.canvas?.selection || ctx.abort,
           duration: duration,
@@ -204,10 +206,12 @@ export default extension('object.export-animations', (fabric) => {
       }
 
       const ctx: any = () => {
+        this.__isAnimated = true
         ctx.iteration = 0
         ctx.abort = false
         ctx.to = fabric.util.object.clone(to || {})
         ctx.from = fabric.util.object.clone(from || {})
+
         this.clone((object: fabric.Object) => {
           ctx.object = object
           ctx.object.animations = []
@@ -229,10 +233,9 @@ export default extension('object.export-animations', (fabric) => {
             this.originY
           )
 
-          this.canvas?.add(ctx.object)
+          this.canvas?.insertAt(ctx.object, this.canvas?._objects.indexOf(this), false)
 
           setTimeout(() => {
-            this.__isAnimated = true
             ctx.object.visible = true
             animate(ctx.to, ctx)
           }, delay)
