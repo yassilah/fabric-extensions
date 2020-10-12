@@ -8,14 +8,16 @@ import { fabric } from 'fabric'
  * @param callback
  */
 export function extendMethod<
+  U extends T,
   T extends
     | typeof fabric.StaticCanvas
     | typeof fabric.Object
     | typeof fabric.Text
     | typeof fabric.Group
-    | typeof fabric.Image,
+    | typeof fabric.Image
+    | typeof fabric.Polyline,
   M extends MethodsName<T['prototype']>
->(shape: T, methodName: M, callback: (this: InstanceType<T>, ...args: any) => any) {
+>(shape: T, methodName: M, callback: (this: InstanceType<U>, ...args: any) => any) {
   const prototype = shape.prototype as T['prototype']
   const original = prototype[methodName] as Function
   return function (this: InstanceType<T>) {
