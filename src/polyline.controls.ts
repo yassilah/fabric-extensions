@@ -81,8 +81,6 @@ export default extension('polyline.controls', (fabric) => {
       if (this.selectable) {
         this._editingMode = false
         this.set(this.__defaultControlOptions)
-        this._setPositionDimensions({})
-        this.setCoords()
         this.fire('exit:editing', { target: this })
         this.canvas?.requestRenderAll()
       }
@@ -92,19 +90,18 @@ export default extension('polyline.controls', (fabric) => {
      * Update the coords after moving the shape.
      */
     __onMoving(this: fabric.Polyline) {
-      let prevLeft = this.left!
-      let prevTop = this.top!
       return () => {
-        const diffX = prevLeft - this.left!
-        const diffY = prevTop - this.top!
-        prevLeft = this.left!
-        prevTop = this.top!
-        this.points?.forEach((point) => {
-          point.x -= diffX
-          point.y -= diffY
-        })
-        this._setPositionDimensions({})
-        this.setCoords()
+        // TO DO
+        // const diffX = prevLeft - this.left!
+        // const diffY = prevTop - this.top!
+        // prevLeft = this.left!
+        // prevTop = this.top!
+        // this.points?.forEach((point) => {
+        //   point.x -= diffX
+        //   point.y -= diffY
+        // })
+        // this._setPositionDimensions({})
+        // this.setCoords()
       }
     },
 
@@ -165,7 +162,6 @@ export default extension('polyline.controls', (fabric) => {
           local.y + this.pathOffset.y
         )
         this._setPositionDimensions({})
-        this.setCoords()
         this.dirty = true
 
         return true
