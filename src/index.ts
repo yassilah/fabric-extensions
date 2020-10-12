@@ -17,6 +17,7 @@ import { default as canvasGuidelines } from './canvas.guidelines'
 import { default as canvasShortcuts } from './canvas.shortcuts'
 import { default as canvasExternalElements } from './canvas.external-elements'
 import { default as canvasToDataUrlPromise } from './canvas.to-data-url-promise'
+import { default as polylineControls } from './polyline.controls'
 import { default as icon } from './icon'
 import { default as map } from './map'
 import { default as arrow } from './arrow'
@@ -42,6 +43,7 @@ export function install(instance: typeof fabric) {
   icon(instance)
   map(instance)
   arrow(instance)
+  polylineControls(instance)
 }
 
 export {
@@ -65,6 +67,7 @@ export {
   icon,
   map,
   arrow,
+  polylineControls,
 }
 
 if (window.fabric) {
