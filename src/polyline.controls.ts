@@ -41,8 +41,10 @@ export default extension('polyline.controls', (fabric) => {
       this.on('mousedblclick', (event) => {
         if (!this._editingMode) {
           return this.enterEditingMode()
-        } else if (event.pointer && this._editingMode) {
-          const point = this.toLocalPoint(event.pointer, 'center', 'center').add(this.pathOffset)
+        } else if (event.absolutePointer && this._editingMode) {
+          const point = this.toLocalPoint(event.absolutePointer, 'center', 'center').add(
+            this.pathOffset
+          )
           const index = this.__findCLosestPointIndex(point, this.toleranceFromLine)!
           if (index > -1) {
             return this.addPoint(point, index + 1)
@@ -152,7 +154,7 @@ export default extension('polyline.controls', (fabric) => {
      * @param tolerance
      */
     __findCLosestPointIndex(this: fabric.Polyline, point: fabric.Point, tolerance: number = 0) {
-      if (this.points) {
+      if (this.points && this.canvas) {
         return this.points.slice(0, -1).findIndex((start, index) => {
           const end = this.points![index + 1]
 
