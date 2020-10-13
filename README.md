@@ -41,6 +41,45 @@ canvasDrop(fabric)
 
 This is the list of current extensions.
 
+##### **NEW** Polyline controls
+
+This extension will allow you to edit the points of your polygons/polylines/arrows. Simply double click on your object to enter the "editing mode". You may then move your points by dragging them, remove a point by right clicking it or adding a new point by double clicking on a segment. Unselect or double click on your object to exit the "editing mode".
+
+```javascript
+import { fabric } from 'fabric'
+import { polylineControls } from '@yassidev/fabric-extensions'
+
+polylineControls(fabric)
+
+const polyline = new fabric.Polyline(
+  [
+    { x: 0, y: 10 },
+    { x: 10, y: 50 },
+  ],
+  {
+    /**
+     * Whether borders should be visible in editing mode.
+     */
+    hasBordersEditing: false,
+
+    /**
+     * The type of corner style in editing mode.
+     */
+    cornerStyleEditing: 'circle',
+
+    /**
+     * The corner color in editing mode.
+     */
+    cornerColorEditing: 'rgba(0,0,255,0.5)',
+
+    /**
+     * Tolerance distance from line to add a point.
+     */
+    toleranceFromLine: 10,
+  }
+)
+```
+
 ##### Canvas Cover Background
 
 This extension will simply automatically scale the canvas background/overlay image to cover it while keeping its aspect ratio. This will also saintore the backgroundImage/overlayImage property of the canvas.toJSON() as a string rather than an object.
