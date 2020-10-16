@@ -41,6 +41,34 @@ canvasDrop(fabric)
 
 This is the list of current extensions.
 
+##### **NEW** Image controls
+
+This extension will allow you to crop your images. Simply double click on your object to enter the "editing mode". Unselect or double click on your object to exit the "editing mode".
+
+```javascript
+import { fabric } from 'fabric'
+import { imageControls } from '@yassidev/fabric-extensions'
+
+imageControls(fabric)
+
+const image = new fabric.Image(img, {
+  /**
+   * Length of the corner sides in editing mode.
+   */
+  cornerLengthEditing: 5,
+
+  /**
+   * Color of the corner stroke in editing mode.
+   */
+  cornerStrokeColorEditing: 'black',
+
+  /**
+   * Size of the corner stroke in editing mode.
+   */
+  cornerSizeEditing: 2,
+})
+```
+
 ##### **NEW** Polyline controls
 
 This extension will allow you to edit the points of your polygons/polylines/arrows. Simply double click on your object to enter the "editing mode". You may then move your points by dragging them, remove a point by right clicking it or adding a new point by double clicking on a segment. Unselect or double click on your object to exit the "editing mode".

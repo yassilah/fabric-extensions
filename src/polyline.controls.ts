@@ -327,7 +327,7 @@ declare module 'fabric' {
       offsetY: number
       cursorStyle: string
       withConnection: boolean
-      actionHandler: (event: MouseEvent, transformData: any, x: number, y: number) => Function
+      actionHandler: (event: MouseEvent, transformData: any, x: number, y: number) => boolean
       mouseDownHandler: (event: MouseEvent, transformData: any, object: Object) => any
       mouseUpHandler: (event: MouseEvent, transformData: any, object: Object) => any
     }

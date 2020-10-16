@@ -28,18 +28,19 @@
           instance.getElement().focus()
         }
       }
-      const arrow = new fabric.Arrow(new Array(4).fill(null).map(a => ({ x: Math.floor(Math.random() * 500), y: Math.floor(Math.random() * 500) })), {
-        fill: 'blue',
-        stroke: 'black'
-      })
-
-      instance.setZoom(2)
+      
+      const image = fabric.Image.from('https://source.unsplash.com/random', {
+        width: 250,
+        height: 250,
+        left: 250,
+        top: 250
+      }).then(image => instance.add(image))
 
       //  const polygon = new fabric.Polygon(new Array(Math.floor(Math.random() * 3) + 1).fill(null).map(a => ({ x: Math.floor(Math.random() * 500), y: Math.floor(Math.random() * 500) })), {
       //     fill: 'blue'
       //   })
 
-      instance.add(arrow)
+      
     </script>
   </body>
 </html>
