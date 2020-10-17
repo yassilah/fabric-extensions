@@ -234,7 +234,9 @@ export default extension('polyline.controls', (fabric) => {
       y: number
     ) {
       const index = this.points!.indexOf(point)
-      this.__editingTransformPoint(point)
+      const { x: newX, y: newY } = this.__editingTransformPoint(new fabric.Point(x, y))
+      point.x = newX
+      point.y = newY
       this.__editingPositionAfter(index)
       return true
     },
