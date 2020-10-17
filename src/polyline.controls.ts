@@ -42,8 +42,8 @@ export default extension('polyline.controls', (fabric) => {
         if (!this._editingMode) {
           return this.enterEditingMode()
         } else if (event.absolutePointer && this._editingMode) {
-          const point = this.toLocalPoint(event.absolutePointer, 'center', 'center').add(
-            this.pathOffset
+          const point = this.__editingTransformPoint(
+            new fabric.Point(event.absolutePointer.x, event.absolutePointer.y)
           )
           const index = this.__findCLosestPointIndex(point, this.toleranceFromLine)!
           if (index > -1) {
@@ -155,8 +155,8 @@ export default extension('polyline.controls', (fabric) => {
      */
     __findCLosestPointIndex(this: fabric.Polyline, point: fabric.Point, tolerance: number = 0) {
       if (this.points && this.canvas) {
-        return this.points.slice(0, -1).findIndex((start, index) => {
-          const end = this.points![index + 1]
+        return this.points.findIndex((start, index, array) => {
+          const end = index < array.length - 1 ? array[index + 1] : array[0]
 
           const a = () =>
             Math.abs(
@@ -234,11 +234,7 @@ export default extension('polyline.controls', (fabric) => {
       y: number
     ) {
       const index = this.points!.indexOf(point)
-      const local = this.toLocalPoint(new fabric.Point(x, y), 'center', 'center')
-      const size = this._getTransformedDimensions(0, 0)
-      const base = this._getNonTransformedDimensions()
-      point.x = (local.x * base.x) / size.x + this.pathOffset.x
-      point.y = (local.y * base.y) / size.y + this.pathOffset.y
+      this.__editingTransformPoint(point)
       this.__editingPositionAfter(index)
       return true
     },
@@ -262,6 +258,21 @@ export default extension('polyline.controls', (fabric) => {
       const newY = (cornerPoint.y - this.pathOffset.y) / newBase.y
       this.setPositionByOrigin(absolute, newX + 0.5, newY + 0.5)
       this.dirty = true
+    },
+
+    /**
+     * Get the exact point position accounting for
+     * current object transformation.
+     *
+     * @param point
+     */
+    __editingTransformPoint(this: fabric.Polyline, point: fabric.Point) {
+      const local = this.toLocalPoint(point, 'center', 'center')
+      const size = this._getTransformedDimensions(0, 0)
+      const base = this._getNonTransformedDimensions()
+      point.x = (local.x * base.x) / size.x + this.pathOffset.x
+      point.y = (local.y * base.y) / size.y + this.pathOffset.y
+      return point
     },
   })
 })
@@ -301,6 +312,7 @@ declare module 'fabric' {
       _setPositionDimensions(options: any): void
       __createEditingControl(point: Point): Control
       __editingControls(): { [key: string]: Control }
+      __editingTransformPoint(point: Point): Point
       __editingControlPositionHandler(
         point: Point
       ): ReturnType<Exclude<IControlOptions['positionHandler'], undefined>>
