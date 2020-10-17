@@ -1,3 +1,4 @@
+import { Control } from 'fabric/fabric-impl'
 import { extendMethod, extension } from './utils'
 
 export enum ControlPositions {
@@ -84,14 +85,7 @@ export default extension('image.controls', (fabric) => {
           })
           this.__editingImage = image
           this.canvas!.add(this.__editingImage)
-          this.__beforeEditing = {
-            lockMovementX: this.lockMovementX,
-            lockMovementY: this.lockMovementY,
-            hoverCursor: this.hoverCursor,
-          }
-          this.lockMovementX = true
-          this.lockMovementY = true
-          this.hoverCursor = 'default'
+          this.on('moving', (this.__editingOnMoving = this.__editingOnMoving.bind(this)))
           this.controls = this.__editingControls()
           this.fire('enter:editing', { target: this })
           this.canvas?.requestRenderAll()
@@ -109,7 +103,7 @@ export default extension('image.controls', (fabric) => {
           this.canvas.remove(this.__editingImage)
           this.__editingImage = null
         }
-        this.set(this.__beforeEditing)
+        this.off('moving', this.__editingOnMoving)
         this.controls = fabric.Object.prototype.controls
         this.fire('exit:editing', { target: this })
         this.canvas?.requestRenderAll()
@@ -150,6 +144,37 @@ export default extension('image.controls', (fabric) => {
      * @param position
      */
     __editingActionHandlerWrapper(this: fabric.Image, position: ControlPositions) {
+      return (event: MouseEvent, transform: any, x: number, y: number) => {
+        this.__editingSetCrop(position, x, y, true)
+        return true
+      }
+    },
+
+    /**
+     * On moving action.
+     *
+     * @param event
+     */
+    __editingOnMoving(this: fabric.Image, event: fabric.IEvent) {
+      if (this._editingMode && event.pointer) {
+        this.__editingSetCrop(ControlPositions.TOP_LEFT, this.left!, this.top!)
+      }
+    },
+
+    /**
+     * Set crop of the image.
+     *
+     * @param position
+     * @param x
+     * @param y
+     */
+    __editingSetCrop(
+      this: fabric.Image,
+      position: ControlPositions,
+      x: number,
+      y: number,
+      resize: boolean = false
+    ) {
       if (this.__editingImage) {
         const {
           top = 0,
@@ -160,30 +185,31 @@ export default extension('image.controls', (fabric) => {
           scaleY = 1,
         } = this.__editingImage
 
-        return (event: MouseEvent, transform: any, x: number, y: number) => {
-          if (position.includes('t')) {
-            const cropY = Math.min((Math.max(y, top) - top) / scaleY, height)
-            this.height = Math.min(this.height! + (this.cropY! - cropY), height)
-            this.cropY = cropY
-            this.top = Math.max(Math.min(y, top + height * scaleY), top)
-          } else if (position.includes('b')) {
-            this.height = Math.max(
-              0,
-              Math.min((y - top) / scaleY - this.cropY!, height - this.cropY!)
-            )
+        if (position.includes('t')) {
+          const maxTop = top + height * scaleY - (resize ? 0 : this.getScaledHeight())
+          const minTop = Math.min(y, maxTop, this.top! + this.getScaledHeight())
+          this.top = Math.max(minTop, top)
+          const cropY = Math.min((Math.min(Math.max(y, top), this.top) - top) / scaleY, height)
+          if (resize) {
+            this.height = Math.max(0, Math.min(this.height! + (this.cropY! - cropY), height))
           }
-          if (position.includes('l')) {
-            const cropX = Math.min((Math.max(x, left) - left) / scaleX, width)
-            this.width = Math.min(this.width! + (this.cropX! - cropX), width)
-            this.cropX = cropX
-            this.left = Math.max(Math.min(x, left + width * scaleX), left)
-          } else if (position.includes('r')) {
-            this.width = Math.max(
-              0,
-              Math.min((x - left) / scaleX - this.cropX!, width - this.cropX!)
-            )
+          this.cropY = cropY
+        } else if (position.includes('b') && resize) {
+          const minHeight = Math.min((y - top) / scaleY - this.cropY!, height - this.cropY!)
+          this.height = Math.max(0, minHeight)
+        }
+        if (position.includes('l')) {
+          const maxLeft = left + width * scaleX - (resize ? 0 : this.getScaledWidth())
+          const minLeft = Math.min(x, maxLeft, this.left! + this.getScaledWidth())
+          this.left = Math.max(minLeft, left)
+          const cropX = Math.min((Math.min(Math.max(x, left), this.left) - left) / scaleX, width)
+          if (resize) {
+            this.width = Math.max(0, Math.min(this.width! + (this.cropX! - cropX), width))
           }
-          return true
+          this.cropX = cropX
+        } else if (position.includes('r') && resize) {
+          const minWidth = Math.min((x - left) / scaleX - this.cropX!, width - this.cropX!)
+          this.width = Math.max(0, minWidth)
         }
       }
     },
@@ -280,7 +306,7 @@ declare module 'fabric' {
     interface Image {
       _editingMode: boolean
       __editingImage: Image | null
-      __beforeEditing: Pick<Object, 'lockMovementX' | 'lockMovementY' | 'hoverCursor'>
+      __editingOnMoving: (event: IEvent) => void
       cornerLengthEditing: number
       cornerSizeEditing: number
       cornerStrokeColorEditing: string
@@ -289,6 +315,7 @@ declare module 'fabric' {
       exitEditingMode(): void
       __createEditingControl(position: ControlPositions): Control
       __editingControls(): { [key: string]: Control }
+      __editingSetCrop(position: ControlPositions, x: number, y: number, resize?: boolean): void
       __editingControlPositionHandler(position: ControlPositions): Point
       __editingActionHandlerWrapper(position: ControlPositions): Control['actionHandler']
       __renderEditingControl(
